@@ -1,75 +1,81 @@
-# 369
+# SilentOp 🦅
 
-![Pine Script](https://img.shields.io/badge/Pine%20Script-v6-blue.svg) ![Platform](https://img.shields.io/badge/Platform-TradingView-green.svg)
+![Pine Script](https://img.shields.io/badge/Pine%20Script-v6-blue.svg) ![Platform](https://img.shields.io/badge/Platform-TradingView-green.svg) ![Type](https://img.shields.io/badge/Type-Scalping-orange)
 
-**369** is a specialized scalping indicator for **TradingView** designed for the **1-minute timeframe**. It combines classic market structure (Swing Highs/Lows) with Tesla's 3-6-9 numerology theory to filter trade signals based on time alignment.
+**SilentOp** is a specialized precision scalping indicator for **TradingView**, optimized for the **1-minute (M1) timeframe**. It seamlessly combines **Tesla's 3-6-9 Numerology** swing trading logic with advanced **New Week Open Gap (NWOG)** structure analysis.
 
-## 🚀 Features
+## 🌟 Key Features
 
-* **Fractal Swing Detection:** Identifies local market tops and bottoms automatically.
-* **3-6-9 Time Filter:** Validates swings using "Digital Root" mathematics applied to the specific candle time.
-* **Auto-Cleanup:** Automatically removes old labels after **10 minutes** (configurable) to keep the chart clean and improve performance.
-* **Smart Label Positioning:** Prevents overlap between time labels and number labels using dynamic styling.
-* **Debug Mode:** Optional feature to reveal "hidden" swings (non-369) for backtesting and verification.
-* **Timezone Support:** Customizable timezone input (default UTC+5) for accurate calculation regardless of exchange time.
+### 1. 3-6-9 Swing Detection
+* **Fractal Identification:** Automatically detects Swing Highs and Swing Lows based on market structure.
+* **Numerology Filter:** Filters swings using "Digital Root" mathematics. A signal is valid only if the time aligns with the vibration of **3, 6, or 9**.
+* **Smart Priority Logic:** Uses a 3-step summation algorithm to capture valid signals that standard summation might miss (e.g., *12:25* becomes valid via specific unit summation).
+* **Auto-Cleanup:** Automatically removes old signals after a configurable time (default: 10 mins) to keep the chart clean and focused.
+
+### 2. Advanced NWOG (New Week Open Gap)
+* **5-Week History:** Displays New Week Open Gaps for the current week and the 4 previous weeks.
+* **Force Load Data:** Uses `request.security` to ensure gaps are visible even on the M1 timeframe where historical data might not fully load.
+* **CE (Consequent Encroachment):** Optional 50% median line (Center Line) for each gap with fully customizable styles.
+* **Dual-Anchor Labels (Smart Visibility):**
+    * **Anchor A (History):** Fixed at the start of the week (allows you to see gap details while backtesting).
+    * **Anchor B (Real-time):** Floats on the right side of the current price (allows you to see all 5 gaps simultaneously while trading live).
+* **Horizontal Ray:** Lines extend infinitely to the right.
 
 ---
 
 ## 🧠 How It Works
 
-The indicator follows a strict priority logic to calculate the "Digital Root" (reducing sums to a single digit) of the candle's timestamp.
+### The 3-6-9 Logic
+SilentOp calculates the **Digital Root** (sum of digits reduced to a single number) of the candle's timestamp.
 
-### 1. Swing Detection
-It first waits for a confirmed Swing High or Swing Low (Fractal pattern).
-* *Note: Signals appear after the confirmation candle closes (1-candle lag).*
+| Priority | Calculation | Condition |
+| :--- | :--- | :--- |
+| **1. Minute** | Sum of Minute digits. | If **3, 6, 9** → **VALID** ✅ |
+| **2. Min + Hour(Unit)** | Sum of (Minute + Hour's last digit). | If **3, 6, 9** → **VALID** ✅ |
+| **3. Min + Hour(Total)**| Sum of (Minute + Hour's last digit + Hour's first digit). | If **3, 6, 9** → **VALID** ✅ |
 
-### 2. The 369 Logic
-Once a swing is found, it checks the time:
-
-| Priority | Check | Logic | Example |
-| :--- | :--- | :--- | :--- |
-| **1st** | **Minute Only** | Sum the digits of the minute. If the result is **3, 6, or 9**, the signal is **VALID**. | `18:45` <br> $4+5 = 9$ (Pass) ✅ |
-| **2nd** | **Total Sum** | If Priority 1 fails, sum (Hour + Minute). If the result is **3, 6, or 9**, the signal is **VALID**. | `10:14` <br> Min: $1+4=5$ (Fail) <br> Hour: $1+0=1$ <br> Total: $1+5=6$ (Pass) ✅ |
-| **Result** | **Invalid** | If neither calculation results in 3, 6, or 9. | `18:28` <br> Result = 1. (Hidden) ❌ |
+### The NWOG Logic
+* **Definition:** The gap between the Previous Week's Close (Friday) and the Current Week's Open (Monday).
+* **CE 50%:** The midpoint of the gap, acting as a key institutional reference level.
+* **Visuals:** Draws horizontal rays for the Top, Bottom, and CE of the gap. Labels are placed at both the origin and the current price level.
 
 ---
 
 ## ⚙️ Configuration
 
-### Appearance
-* **Time Text Color:** Color for the timestamp (e.g., `18:30`).
-* **Number 3-6-9 Color:** Color for the valid signal number.
+### 369 Settings
+* **Enable 369:** Toggle the swing detection on/off.
+* **Colors:** Customize the Time text and Number text colors.
+* **Keep Signals (Minutes):** Duration signals remain on the chart (Default: 10).
+* **Timezone:** Adjust to your exchange's timezone (Default: `UTC+5`).
 
-### Settings
-* **Show Last (Minutes):** *Default: 10*. Determines how long signals remain on the chart.
-    * *Example:* On a 1m chart, labels older than 10 candles will be auto-deleted.
-* **Timezone:** *Default: UTC+5*. Adjust this string (e.g., `UTC-5`, `GMT+7`) to match your preferred trading hours.
-
-### Debugging
-* **Show Non-369 Swings (Gray):** Enable this to see swings that were filtered out. They will appear in **Gray**. This is useful to verify that the swing detection is working even when the math condition isn't met.
+### NWOG Settings
+* **Enable NWOG:** Toggle the gap lines on/off.
+* **Colors:** Customize Line and Text colors independently.
+* **Show CE (50%):** Toggle the dashed centerline.
+    * *CE Style:* Customize color, width, and style (Solid/Dashed/Dotted).
 
 ---
 
-## 📖 Visual Legend
+## 📸 Screenshots
 
-| Position | Signal Type | Label Style |
-| :--- | :--- | :--- |
-| **Above Bar** | **Swing High** (Sell) | Time is centered. Number has an **arrow pointing down**. |
-| **Below Bar** | **Swing Low** (Buy) | Time is centered. Number has an **arrow pointing up**. |
-
+*(Upload your screenshots to an 'images' folder and link them here)*
 ---
 
 ## 📦 Installation
 
 1.  Open **TradingView**.
-2.  Go to **Pine Editor** tab at the bottom.
-3.  Create a new indicator and paste the source code.
-4.  Click **Save** and **Add to Chart**.
+2.  Go to the **Pine Editor** tab at the bottom.
+3.  Create a new indicator.
+4.  Copy & Paste the source code.
+5.  Click **Save** and **Add to Chart**.
 
 ---
 
 ## ⚠️ Disclaimer
 
-> This tool is for educational and assistive purposes only. Past performance based on numerology alignment does not guarantee future price action. Always use proper risk management.
+> **SilentOp** is for educational and assistive purposes only. Past performance based on numerology alignment or gap fills does not guarantee future price action. Always use proper risk management.
 
-<img width="1817" height="745" alt="image" src="https://github.com/user-attachments/assets/22d0c5d8-aba6-4725-9530-1d6065f7c9d5" />
+---
+
+**© Guaryka**
